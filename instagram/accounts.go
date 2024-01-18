@@ -1,7 +1,7 @@
 package instagram
 
 import (
-	"github.com/parand87/ig-msg-go/instagram/fields"
+	"github.com/parand87/ig-msg-go/instagram/constants"
 	"net/url"
 	"strings"
 )
@@ -17,18 +17,18 @@ type Account struct {
 const AccountsEndpoint = "/me/accounts"
 
 var accountFields = []string{
-	fields.AccessToken,
-	fields.Bio,
-	fields.Id,
-	fields.Name,
-	fields.Username,
+	constants.Fields.AccessToken,
+	constants.Fields.Bio,
+	constants.Fields.Id,
+	constants.Fields.Name,
+	constants.Fields.Username,
 }
 
 func (i *Instagram) GetAccounts() ([]Account, error) {
 	var params = url.Values{}
-	params.Set(fields.Fields, strings.Join(accountFields, ","))
+	params.Set(constants.Fields.Fields, strings.Join(accountFields, ","))
 	if i.Config.AccessToken != "" {
-		params.Set(fields.AccessToken, i.Config.AccessToken)
+		params.Set(constants.Fields.AccessToken, i.Config.AccessToken)
 	}
 
 	endpoint := i.Config.Domain + AccountsEndpoint + "?" + params.Encode()
@@ -38,9 +38,9 @@ func (i *Instagram) GetAccounts() ([]Account, error) {
 
 func (i *Instagram) GetPageAccessToken(accountId string) (*Account, error) {
 	var params = url.Values{}
-	params.Set(fields.Fields, strings.Join(accountFields, ","))
+	params.Set(constants.Fields.Fields, strings.Join(accountFields, ","))
 	if i.Config.AccessToken != "" {
-		params.Set(fields.AccessToken, i.Config.AccessToken)
+		params.Set(constants.Fields.AccessToken, i.Config.AccessToken)
 	}
 
 	endpoint := i.Config.Domain + "/" + accountId + "?" + params.Encode()

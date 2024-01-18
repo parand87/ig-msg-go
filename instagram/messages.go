@@ -2,7 +2,7 @@ package instagram
 
 import (
 	"encoding/json"
-	"github.com/parand87/ig-msg-go/instagram/fields"
+	"github.com/parand87/ig-msg-go/instagram/constants"
 	"net/url"
 	"strings"
 	"time"
@@ -19,18 +19,18 @@ type MessageListResponse struct {
 }
 
 var messageFields = []string{
-	fields.Id,
-	fields.Message,
-	fields.CreatedTime,
-	fields.Reactions,
-	fields.Shares,
+	constants.Fields.Id,
+	constants.Fields.Message,
+	constants.Fields.CreatedTime,
+	constants.Fields.Reactions,
+	constants.Fields.Shares,
 }
 
 func (i *Instagram) GetMessages(pageAccessToken string, conversationId string) ([]Message, error) {
 	params := url.Values{}
-	params.Set(fields.Fields, "messages")
+	params.Set(constants.Fields.Fields, "messages")
 	if pageAccessToken != "" {
-		params.Set(fields.AccessToken, pageAccessToken)
+		params.Set(constants.Fields.AccessToken, pageAccessToken)
 	}
 	endpoint := i.Config.Domain + "/" + conversationId + "?" + params.Encode()
 	messageResponse, err := sendRequest[MessageListResponse](endpoint)
@@ -49,9 +49,9 @@ func (i *Instagram) GetMessages(pageAccessToken string, conversationId string) (
 
 func (i *Instagram) GetMessage(pageAccessToken string, messageId string) (Message, error) {
 	params := url.Values{}
-	params.Set(fields.Fields, strings.Join(messageFields, ","))
+	params.Set(constants.Fields.Fields, strings.Join(messageFields, ","))
 	if pageAccessToken != "" {
-		params.Set(fields.AccessToken, pageAccessToken)
+		params.Set(constants.Fields.AccessToken, pageAccessToken)
 	}
 	endpoint := i.Config.Domain + "/" + messageId + "?" + params.Encode()
 	message, err := sendRequest[Message](endpoint)

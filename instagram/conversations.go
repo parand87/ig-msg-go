@@ -2,7 +2,7 @@ package instagram
 
 import (
 	"encoding/json"
-	"github.com/parand87/ig-msg-go/instagram/fields"
+	"github.com/parand87/ig-msg-go/instagram/constants"
 	"net/url"
 	"strings"
 	"time"
@@ -24,19 +24,19 @@ type Participant struct {
 }
 
 var conversationFields = []string{
-	fields.Id,
-	fields.Name,
-	fields.Participants,
-	fields.UpdatedTime,
-	fields.UnreadCount,
+	constants.Fields.Id,
+	constants.Fields.Name,
+	constants.Fields.Participants,
+	constants.Fields.UpdatedTime,
+	constants.Fields.UnreadCount,
 }
 
 func (i *Instagram) GetConversations(pageAccessToken string) ([]Conversation, error) {
 	params := url.Values{}
-	params.Set(fields.Fields, strings.Join(conversationFields, ","))
-	params.Set(fields.Platform, "instagram")
+	params.Set(constants.Fields.Fields, strings.Join(conversationFields, ","))
+	params.Set(constants.Fields.Platform, "instagram")
 	if pageAccessToken != "" {
-		params.Set(fields.AccessToken, pageAccessToken)
+		params.Set(constants.Fields.AccessToken, pageAccessToken)
 	}
 	endpoint := i.Config.Domain + ConversationsEndpoint + "?" + params.Encode()
 	data, err := sendRequest[ListResponse[Conversation]](endpoint)
