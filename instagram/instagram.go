@@ -44,8 +44,8 @@ func (i *Instagram) SetUserAccessToken(accessToken string) error {
 	return err
 }
 
-func (i *Instagram) SetPageAccessToken(accessToken string) {
-	i.Config.AccessToken = accessToken
+func (i *Instagram) SetPageAccessToken(pageAccessToken string) {
+	i.Config.PageAccessToken = pageAccessToken
 }
 
 func sendRequest[T any](endpoint string) (T, error) {

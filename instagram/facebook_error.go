@@ -8,6 +8,10 @@ type FacebookError struct {
 	FbtraceId    string `json:"fbtrace_id,omitempty"`
 }
 
+type FacebookErrorResponse struct {
+	Error FacebookError `json:"error,omitempty"`
+}
+
 func (e *FacebookError) Error() string {
 	return e.Message
 }
