@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const ConversationsEndpoint = "/me/conversations"
+const conversationsEndpoint = "/me/conversations"
 
 type Conversation struct {
 	Id           string        `json:"id,omitempty"`
@@ -36,9 +36,23 @@ func (i *Instagram) GetConversations(userData *UserData) ([]Conversation, error)
 	params.Set(constants.Fields.Fields, strings.Join(conversationFields, ","))
 	params.Set(constants.Fields.Platform, "instagram")
 	params.Set(constants.Fields.AccessToken, userData.PageToken)
-	endpoint := i.Config.Domain + ConversationsEndpoint + "?" + params.Encode()
+	endpoint := i.Config.Domain + conversationsEndpoint + "?" + params.Encode()
 	data, err := sendRequest[ListResponse[Conversation]](endpoint)
 	return data.Data, err
+}
+
+func (i *Instagram) GetConversation(id string, userData *UserData) (*Conversation, error) {
+	params := url.Values{}
+	params.Set(constants.Fields.Fields, strings.Join(conversationFields, ","))
+	params.Set(constants.Fields.AccessToken, userData.PageToken)
+	endpoint := i.Config.Domain + id + "?" + params.Encode()
+	data, err := sendRequest[Conversation](endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	data.Participants = removeParticipant(data.Participants, userData.InstagramId)
+	return &data, err
 }
 
 func (c *Conversation) UnmarshalJSON(b []byte) error {
@@ -67,4 +81,14 @@ func (c *Conversation) UnmarshalJSON(b []byte) error {
 
 	c.Participants = aux.Participants.Data
 	return nil
+}
+
+func removeParticipant(participants []Participant, participantId string) []Participant {
+	var result []Participant
+	for _, participant := range participants {
+		if participant.Id != participantId {
+			result = append(result, participant)
+		}
+	}
+	return result
 }
