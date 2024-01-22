@@ -7,11 +7,15 @@ import (
 )
 
 type Account struct {
-	Id             string `json:"id,omitempty"`
-	FollowersCount int    `json:"followers_count,omitempty"`
-	Name           string `json:"name,omitempty"`
-	Username       string `json:"username,omitempty"`
-	AccessToken    string `json:"access_token,omitempty"`
+	Id                       string          `json:"id,omitempty"`
+	Name                     string          `json:"name,omitempty"`
+	Username                 string          `json:"username,omitempty"`
+	AccessToken              string          `json:"access_token,omitempty"`
+	InstagramBusinessAccount BusinessAccount `json:"instagram_business_account"`
+}
+
+type BusinessAccount struct {
+	Id string `json:"id"`
 }
 
 const AccountsEndpoint = "/me/accounts"
@@ -22,6 +26,7 @@ var accountFields = []string{
 	constants.Fields.Id,
 	constants.Fields.Name,
 	constants.Fields.Username,
+	constants.Fields.InstagramBusinessAccount,
 }
 
 func (i *Instagram) GetAccounts() ([]Account, error) {
