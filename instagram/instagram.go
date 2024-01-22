@@ -21,6 +21,10 @@ type ListResponse[T any] struct {
 	Data   []T     `json:"data,omitempty"`
 	Paging *Paging `json:"paging,omitempty"`
 }
+type Response[T any] struct {
+	Data T `json:"data,omitempty"`
+}
+
 type Instagram struct {
 	Config *Config
 	Client *http.Client
@@ -36,16 +40,6 @@ func NewClient(config *Config) *Instagram {
 	var instagram = &Instagram{Config: config}
 	instagram.Client = http.DefaultClient
 	return instagram
-}
-
-func (i *Instagram) SetUserAccessToken(accessToken string) error {
-	i.Config.AccessToken = accessToken
-	err := SaveConfig(i.Config)
-	return err
-}
-
-func (i *Instagram) SetPageAccessToken(pageAccessToken string) {
-	i.Config.PageAccessToken = pageAccessToken
 }
 
 func sendRequest[T any](endpoint string) (T, error) {

@@ -53,19 +53,17 @@ var messageFields = []string{
 	constants.Fields.Shares,
 }
 
-func (i *Instagram) GetMessages(conversationId string) ([]Message, error) {
+func (i *Instagram) GetMessages(conversationId string, userData *UserData) ([]Message, error) {
 	params := url.Values{}
 	params.Set(constants.Fields.Fields, "messages")
-	if i.Config.PageAccessToken != "" {
-		params.Set(constants.Fields.AccessToken, i.Config.PageAccessToken)
-	}
+	params.Set(constants.Fields.AccessToken, userData.PageToken)
 	endpoint := i.Config.Domain + "/" + conversationId + "?" + params.Encode()
 	messageResponse, err := sendRequest[MessageListResponse](endpoint)
 
 	var messages []Message
 
 	for _, message := range messageResponse.Messages.Data {
-		fullMessage, err := i.GetMessage(message.Id)
+		fullMessage, err := i.GetMessage(message.Id, userData)
 		if err != nil {
 			return nil, err
 		}
@@ -74,12 +72,10 @@ func (i *Instagram) GetMessages(conversationId string) ([]Message, error) {
 	return messages, err
 }
 
-func (i *Instagram) GetMessage(messageId string) (Message, error) {
+func (i *Instagram) GetMessage(messageId string, userData *UserData) (Message, error) {
 	params := url.Values{}
 	params.Set(constants.Fields.Fields, strings.Join(messageFields, ","))
-	if i.Config.PageAccessToken != "" {
-		params.Set(constants.Fields.AccessToken, i.Config.PageAccessToken)
-	}
+	params.Set(constants.Fields.AccessToken, userData.PageToken)
 	endpoint := i.Config.Domain + "/" + messageId + "?" + params.Encode()
 	message, err := sendRequest[Message](endpoint)
 	return message, err
@@ -92,11 +88,9 @@ type MessageText struct {
 	Text string `json:"text"`
 }
 
-func (i *Instagram) SendTextMessage(recipientId string, text string) error {
+func (i *Instagram) SendTextMessage(recipientId string, text string, userData *UserData) error {
 	params := url.Values{}
-	if i.Config.PageAccessToken != "" {
-		params.Set(constants.Fields.AccessToken, i.Config.PageAccessToken)
-	}
+	params.Set(constants.Fields.AccessToken, userData.PageToken)
 	endpoint := i.Config.Domain + "/me/messages" + "?" + params.Encode()
 
 	messageData := MessageRecipient{

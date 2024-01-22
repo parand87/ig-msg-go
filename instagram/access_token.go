@@ -15,6 +15,27 @@ type AccessToken struct {
 	Error       FacebookError `json:"error"`
 }
 
+type DebugToken struct {
+	AppId          string  `json:"app_id,omitempty"`
+	ExpiresAt      int64   `json:"expires_at,omitempty"`
+	IsValid        bool    `json:"is_valid,omitempty"`
+	UserId         string  `json:"user_id,omitempty"`
+	ProfileId      string  `json:"profile_id,omitempty"`
+	GranularScopes []Scope `json:"granular_scopes,omitempty"`
+	Type           string  `json:"type"`
+}
+type AccessTokenType string
+
+type Scope struct {
+	Scope     string   `json:"scope,omitempty"`
+	TargetIds []string `json:"target_ids,omitempty"`
+}
+
+const (
+	PageToken AccessTokenType = "PAGE"
+	UserToken AccessTokenType = "USER"
+)
+
 func (i *Instagram) RequestAccessToken(code string) (*AccessToken, error) {
 	accessToken, err := i.GetShortLivedAccessToken(code)
 	if err != nil {
@@ -56,6 +77,17 @@ func (i *Instagram) GetShortLivedAccessToken(code string) (*AccessToken, error) 
 	return data, nil
 }
 
+func (i *Instagram) ValidateToken(userToken string, inputToken string) (DebugToken, error) {
+	var params = url.Values{}
+	params.Set("access_token", userToken)
+	params.Set("input_token", inputToken)
+
+	var debugTokenUri = i.Config.Domain + "/debug_token" + "?" + params.Encode()
+
+	data, err := sendRequest[Response[DebugToken]](debugTokenUri)
+	return data.Data, err
+}
+
 func (i *Instagram) GetLongLivedAccessToken(accessToken *AccessToken) (*AccessToken, error) {
 	var params = url.Values{}
 	params.Set("client_id", i.Config.AppId)
@@ -86,7 +118,6 @@ func (i *Instagram) GetLongLivedAccessToken(accessToken *AccessToken) (*AccessTo
 		return nil, &data.Error
 	}
 
-	err = i.SetUserAccessToken(data.AccessToken)
 	return data, err
 }
 func (a *AccessToken) IsLongLived() bool {

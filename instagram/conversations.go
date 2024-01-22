@@ -31,13 +31,11 @@ var conversationFields = []string{
 	constants.Fields.UnreadCount,
 }
 
-func (i *Instagram) GetConversations(pageAccessToken string) ([]Conversation, error) {
+func (i *Instagram) GetConversations(userData *UserData) ([]Conversation, error) {
 	params := url.Values{}
 	params.Set(constants.Fields.Fields, strings.Join(conversationFields, ","))
 	params.Set(constants.Fields.Platform, "instagram")
-	if pageAccessToken != "" {
-		params.Set(constants.Fields.AccessToken, pageAccessToken)
-	}
+	params.Set(constants.Fields.AccessToken, userData.PageToken)
 	endpoint := i.Config.Domain + ConversationsEndpoint + "?" + params.Encode()
 	data, err := sendRequest[ListResponse[Conversation]](endpoint)
 	return data.Data, err

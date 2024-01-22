@@ -29,31 +29,14 @@ var accountFields = []string{
 	constants.Fields.InstagramBusinessAccount,
 }
 
-func (i *Instagram) GetAccounts() ([]Account, error) {
+func (i *Instagram) GetAccounts(userData *UserData) ([]Account, error) {
 	var params = url.Values{}
 	params.Set(constants.Fields.Fields, strings.Join(accountFields, ","))
-	if i.Config.AccessToken != "" {
-		params.Set(constants.Fields.AccessToken, i.Config.AccessToken)
+	if userData.UserToken != "" {
+		params.Set(constants.Fields.AccessToken, userData.UserToken)
 	}
 
 	endpoint := i.Config.Domain + AccountsEndpoint + "?" + params.Encode()
 	data, err := sendRequest[ListResponse[Account]](endpoint)
 	return data.Data, err
-}
-
-func (i *Instagram) GetPageAccessToken(accountId string) (*Account, error) {
-	var params = url.Values{}
-	params.Set(constants.Fields.Fields, strings.Join(accountFields, ","))
-	if i.Config.AccessToken != "" {
-		params.Set(constants.Fields.AccessToken, i.Config.AccessToken)
-	}
-
-	endpoint := i.Config.Domain + "/" + accountId + "?" + params.Encode()
-	account, err := sendRequest[Account](endpoint)
-	if err != nil {
-		return nil, err
-	}
-
-	i.SetPageAccessToken(account.AccessToken)
-	return &account, err
 }
