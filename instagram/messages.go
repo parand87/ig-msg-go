@@ -88,7 +88,7 @@ type MessageText struct {
 	Text string `json:"text"`
 }
 
-func (i *Instagram) SendTextMessage(recipientId string, text string, userData *UserData) error {
+func (i *Instagram) SendTextMessage(recipientId string, text string, userData *UserData) (*Message, error) {
 	params := url.Values{}
 	params.Set(constants.Fields.AccessToken, userData.PageToken)
 	endpoint := i.Config.Domain + "/me/messages" + "?" + params.Encode()
@@ -98,14 +98,14 @@ func (i *Instagram) SendTextMessage(recipientId string, text string, userData *U
 	}
 	recipientJson, err := json.Marshal(messageData)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	textData := MessageText{
 		Text: text,
 	}
 	textJson, err := json.Marshal(textData)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	formData := url.Values{}
@@ -116,7 +116,7 @@ func (i *Instagram) SendTextMessage(recipientId string, text string, userData *U
 	buffer := bytes.NewBufferString(formEncoded)
 	response, err := http.Post(endpoint, "application/x-www-form-urlencoded", buffer)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -125,16 +125,19 @@ func (i *Instagram) SendTextMessage(recipientId string, text string, userData *U
 		}
 	}(response.Body)
 	body, err := io.ReadAll(response.Body)
-	println(string(body))
 	if response.StatusCode != 200 {
 		var fbError = new(FacebookErrorResponse)
 		err = json.Unmarshal(body, fbError)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return &fbError.Error
+		return nil, &fbError.Error
+	}
+	var data *Message
+	err = json.Unmarshal(body, data)
+	if err != nil {
+		return nil, err
 	}
 
-	println(string(body))
-	return nil
+	return data, nil
 }
