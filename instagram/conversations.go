@@ -45,7 +45,7 @@ func (i *Instagram) GetConversation(id string, userData *UserData) (*Conversatio
 	params := url.Values{}
 	params.Set(constants.Fields.Fields, strings.Join(conversationFields, ","))
 	params.Set(constants.Fields.AccessToken, userData.PageToken)
-	endpoint := i.Config.Domain + id + "?" + params.Encode()
+	endpoint := i.Config.Domain + "/" + id + "?" + params.Encode()
 	data, err := sendRequest[Conversation](endpoint)
 	if err != nil {
 		return nil, err

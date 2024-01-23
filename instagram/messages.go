@@ -88,7 +88,7 @@ type MessageText struct {
 	Text string `json:"text"`
 }
 
-func (i *Instagram) SendTextMessage(recipientId string, text string, userData *UserData) (*Message, error) {
+func (i *Instagram) SendTextMessage(recipientId string, text string, userData *UserData) error {
 	params := url.Values{}
 	params.Set(constants.Fields.AccessToken, userData.PageToken)
 	endpoint := i.Config.Domain + "/me/messages" + "?" + params.Encode()
@@ -98,14 +98,14 @@ func (i *Instagram) SendTextMessage(recipientId string, text string, userData *U
 	}
 	recipientJson, err := json.Marshal(messageData)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	textData := MessageText{
 		Text: text,
 	}
 	textJson, err := json.Marshal(textData)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	formData := url.Values{}
@@ -116,7 +116,7 @@ func (i *Instagram) SendTextMessage(recipientId string, text string, userData *U
 	buffer := bytes.NewBufferString(formEncoded)
 	response, err := http.Post(endpoint, "application/x-www-form-urlencoded", buffer)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -129,15 +129,10 @@ func (i *Instagram) SendTextMessage(recipientId string, text string, userData *U
 		var fbError = new(FacebookErrorResponse)
 		err = json.Unmarshal(body, fbError)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		return nil, &fbError.Error
-	}
-	var data *Message
-	err = json.Unmarshal(body, data)
-	if err != nil {
-		return nil, err
+		return &fbError.Error
 	}
 
-	return data, nil
+	return nil
 }
